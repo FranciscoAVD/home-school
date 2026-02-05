@@ -1,31 +1,35 @@
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import {
+  createInsertSchema,
+  createUpdateSchema,
+  createSelectSchema,
+} from "drizzle-zod";
 import * as schema from "@/db/schema";
 import { Table } from "drizzle-orm";
 
 type Validators = {
-  [K in keyof typeof schema]: (typeof schema)[K] extends Table
-    ? {
-        insert: ReturnType<
-          typeof createInsertSchema<(typeof schema)[K]>
-        >;
-        update: ReturnType<
-          typeof createUpdateSchema<(typeof schema)[K]>
-        >;
-      }
-    : never;
+  [K in keyof typeof schema as (typeof schema)[K] extends Table
+    ? K
+    : never]: {
+    insert: ReturnType<
+      typeof createInsertSchema<(typeof schema)[K]>
+    >;
+    update: ReturnType<
+      typeof createUpdateSchema<(typeof schema)[K]>
+    >;
+  };
 };
 
-const validators = Object.keys(schema).reduce((acc, key) => {
-  const table = (schema as any)[key];
+const tmp: Record<string, any> = {};
 
+for (const [key, table] of Object.entries(schema)) {
   if (table instanceof Table) {
-    acc[key] = {
+    tmp[key] = {
       insert: createInsertSchema(table),
       update: createUpdateSchema(table),
     };
   }
+}
 
-  return acc;
-}, {} as any) as Validators;
+const validators = tmp as Validators;
 
 export { validators };
