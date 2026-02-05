@@ -16,9 +16,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 //-------------Reusable-------------
-const id = integer("id")
-  .primaryKey()
-  .generatedAlwaysAsIdentity();
+const id = integer("id").primaryKey().generatedAlwaysAsIdentity();
 const createdAt = timestamp("created_at", {
   withTimezone: true,
   mode: "string",
@@ -69,9 +67,7 @@ const courses = pgTable(
     }).notNull(),
     description: text("description").notNull(),
     subject: varchar("subject", { length: 100 }).notNull(),
-    type: pgEnum("type", courseTypes)()
-      .notNull()
-      .default("core"),
+    type: pgEnum("type", courseTypes)().notNull().default("core"),
     credits: integer("credits").notNull().default(1),
     parentId: varchar("parent_id", {
       length: 255,
@@ -93,9 +89,7 @@ const modules = pgTable(
     courseId: integer("course_id")
       .references(() => courses.id, { onDelete: "cascade" })
       .notNull(),
-    isVisible: boolean("is_visible")
-      .notNull()
-      .default(true),
+    isVisible: boolean("is_visible").notNull().default(true),
     isActive: boolean("is_active").notNull().default(true),
     createdAt,
     updatedAt,
